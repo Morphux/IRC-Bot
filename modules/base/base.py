@@ -1,8 +1,11 @@
 # Base Module
 # By: Louis <louis@ne02ptzero>
 
-import random
 import socket
+import urllib.request
+import lxml.etree
+import random
+import re
 
 class Base:
 
@@ -31,6 +34,41 @@ class Base:
             cmd = 'main ' + infos['nick']
             clientsocket.send(cmd.encode())
 
+    def wow(self, Morphux, infos):
+        Morphux.sendMessage("https://www.youtube.com/embed/jUy9_0M3bVk?autoplay=1", infos['nick'])
+
+    @staticmethod
+    def youtube_url_validation(url):
+        youtube_regex = (
+            r'(https?://)?(www\.)?'
+            '(youtube|youtu|youtube-nocookie)\.(com|be)/'
+            '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+        youtube_regex_match = re.match(youtube_regex, url)
+        if youtube_regex_match:
+            return youtube_regex_match.group(6)
+        return youtube_regex_match
+
+    def youtube(self, Morphux, line):
+        infos = Morphux.getInfo(line, 1)
+        if (infos == False):
+            return 1
+
+        if (infos['nick'] == "CL4P_TP"):
+            return 1
+
+        line = infos['command'];
+        if ("args" in infos):
+            line += " " + " ".join(infos['args'])
+
+        if "youtu" in line:
+            urls = [t for t in line.split() if self.youtube_url_validation(t)]
+            for url in urls:
+                if "http" not in url:
+                    url = "https://" + url
+                youtube = lxml.etree.HTML(urllib.request.urlopen(url).read())
+                video_title = youtube.xpath("//span[@id='eow-title']/@title")
+                if video_title:
+                    Morphux.sendMessage("Video title: " + video_title[0])
 
     def command(self):
         self.config = {
@@ -49,13 +87,19 @@ class Base:
                     "function": self.ah,
                     "usage": "ah",
                     "help": "AH !"
+                },
+                "wow": {
+                    "function": self.wow,
+                    "usage": "wow",
+                    "help": "Wooow !"
                 }
             },
             "onJoin": {
                 "join": self.join
             },
             "before": {
-                "rms": self.rms
+                "rms": self.rms,
+                "yt": self.youtube
             }
         }
         return self.config
