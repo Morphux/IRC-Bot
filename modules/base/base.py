@@ -65,7 +65,8 @@ class Base:
             for url in urls:
                 if "http" not in url:
                     url = "https://" + url
-                youtube = lxml.etree.HTML(urllib.request.urlopen(url).read())
+                myparser = lxml.etree.HTMLParser(encoding='utf-8')
+                youtube = lxml.etree.HTML(urllib.request.urlopen(url).read(), parser=myparser)
                 video_title = youtube.xpath("//span[@id='eow-title']/@title")
                 if video_title:
                     Morphux.sendMessage("Video title: " + video_title[0])
