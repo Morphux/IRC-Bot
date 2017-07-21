@@ -2,10 +2,11 @@
 # By: Louis <louis@ne02ptzero>
 
 import socket
-import urllib.request
 import lxml.etree
 import random
 import re
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 class Base:
 
@@ -41,11 +42,13 @@ class Base:
     def youtube_url_validation(url):
         youtube_regex = (
             r'(https?://)?(www\.)?'
-            '(youtube|youtu|youtube-nocookie)\.(com|be)/'
-            '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+            '(youtube|youtu|youtube-nocookie)\.'
+            '((com/((watch\?.v/|watch\?.*v=)|embed/))'
+            '|(be/))([\w|\-]{11})'
+            )
         youtube_regex_match = re.match(youtube_regex, url)
         if youtube_regex_match:
-            return youtube_regex_match.group(6)
+            return youtube_regex_match
         return youtube_regex_match
 
     def youtube(self, Morphux, line):
@@ -66,10 +69,22 @@ class Base:
                 if "http" not in url:
                     url = "https://" + url
                 myparser = lxml.etree.HTMLParser(encoding='utf-8')
-                youtube = lxml.etree.HTML(urllib.request.urlopen(url).read(), parser=myparser)
+                req = Request(url)
+                try:
+                    response = urlopen(req)
+                except HTTPError as e:
+                    Morphux.sendMessage("No can do, page returned an error " + str(e.code))
+                    return 1
+                except URLError as e:
+                    Morphux.sendMessage("Something bad happened, you don't want to know about it.")
+                    return 1
+                else:
+                    youtube = lxml.etree.HTML(response.read(), parser=myparser)
                 video_title = youtube.xpath("//span[@id='eow-title']/@title")
                 if video_title:
                     Morphux.sendMessage("Video title: " + video_title[0])
+                else:
+                    Morphux.sendMessage("URL seems correct, but the video is probably unavailable")
 
     def command(self):
         self.config = {
