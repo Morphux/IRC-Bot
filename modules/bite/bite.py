@@ -34,4 +34,3 @@ class Bite:
             Morphux.sendMessage("So it was a lie all this time !")
         else:
             Morphux.sendMessage("∷∷∷∷∷Э")
-        Morphux.sendMessage("OO")
