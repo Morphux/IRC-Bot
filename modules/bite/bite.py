@@ -26,5 +26,11 @@ class Bite:
         Morphux.sendMessage("c∷∷∷∷∷3", infos['nick'])
 
     def mabite(self, Morphux, infos):
-        Morphux.sendMessage("∷∷∷∷∷Э")
-        Morphux.sendMessage("OO")
+        if (infos['nick'] in ('Louis', 'enerdhil')):
+            Morphux.sendMessage("∷∷∷∷∷∷∷∷∷∷∷Э")
+        elif (infos['nick'] in ('xitope', 'Noich')):
+            Morphux.sendMessage("∷∷∷Э")
+        elif (infos['nick'] in ('ada', 'josy')):
+            Morphux.sendMessage("So it was a lie all this time !")
+        else:
+            Morphux.sendMessage("∷∷∷∷∷Э")
